@@ -1,0 +1,19 @@
+# Build artifacts
+*.egg-info/
+dist/
+build/
+
+# Environment
+.env
+
+# VS / Rider
+.vs/
+.idea/
+*.user
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log
