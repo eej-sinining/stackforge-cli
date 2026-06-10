@@ -1,26 +1,28 @@
 from pathlib import Path
 from stackforge.engines.dotnet.scaffolder import scaffold_folders
+from colorama import init, Fore, Style
 import re
 
+init(autoreset=True)
 
 def is_valid_project_name(name: str) -> bool:
     return bool(re.match(r'^[A-Za-z][A-Za-z0-9]*$', name))
 
 
 def select_framework() -> str:
-    print("  Select a framework:\n")
-    print("    1. .NET Clean Architecture (CQRS)")
-    print("    2. Django                          [coming soon]")
-    print("    3. FastAPI                         [coming soon]")
-    print("    4. Flask                           [coming soon]")
-    print("    5. exit")
+    print(f"  {Fore.CYAN}Select a framework:{Style.RESET_ALL}\n")
+    print(f"    {Fore.GREEN}1.{Style.RESET_ALL} .NET Clean Architecture (CQRS)")
+    print(f"    {Fore.YELLOW}2.{Style.RESET_ALL} Django                          [coming soon]")
+    print(f"    {Fore.YELLOW}3.{Style.RESET_ALL} FastAPI                         [coming soon]")
+    print(f"    {Fore.YELLOW}4.{Style.RESET_ALL} Flask                           [coming soon]")
+    print(f"    {Fore.RED}5.{Style.RESET_ALL} exit")
 
-    choice = input("\n  Choice [n]: ").strip() or "1"
+    choice = input(f"\n  {Fore.CYAN}Choice [n]:{Style.RESET_ALL} ").strip() or "1"
     return choice
 
 
 def main():
-    print(r"""
+    print(Fore.CYAN + r"""
   _____ _             _    ______
  / ____| |           | |  |  ____|
 | (___ | |_ __ _  ___| | _| |__ ___  _ __ __ _  ___
@@ -29,36 +31,35 @@ def main():
 |_____/ \__\__,_|\___|_|\_\_|  \___/|_|  \__, |\___|
                                            __/ |
                                           |___/
-  .NET Clean Architecture Scaffolder
-    """)
+""" + Style.RESET_ALL + f"  {Fore.WHITE}.NET Clean Architecture Scaffolder{Style.RESET_ALL}\n")
 
     while True:
         framework = select_framework()
 
         if framework == "5":
-            print("\n  Exiting...")
+            print(f"\n  {Fore.YELLOW}Exiting...{Style.RESET_ALL}")
             break
 
         if framework != "1":
-            print("\n  [!] This framework is under development. Stay tuned!\n")
+            print(f"\n  {Fore.YELLOW}[!] This framework is under development. Stay tuned!{Style.RESET_ALL}\n")
             continue
 
-        project_name = input("\n  Enter project name (PascalCase, no spaces): ").strip()
+        project_name = input(f"\n  {Fore.CYAN}Enter project name (PascalCase, no spaces):{Style.RESET_ALL} ").strip()
 
         if not project_name:
-            print("  [!] Project name cannot be empty.\n")
+            print(f"  {Fore.RED}[!] Project name cannot be empty.{Style.RESET_ALL}\n")
             continue
 
         if not is_valid_project_name(project_name):
-            print("  [!] Project name must start with a letter and contain only letters and numbers.")
-            print("      Example: RaiderXpress, MyApi, StackForge\n")
+            print(f"  {Fore.RED}[!] Project name must start with a letter and contain only letters and numbers.")
+            print(f"      Example: RaiderXpress, MyApi, StackForge{Style.RESET_ALL}\n")
             continue
 
         base_path = Path.home() / "stackforge" / project_name
 
         if base_path.exists():
-            print(f"\n  [!] Project '{project_name}' already exists in the stackforge workspace.")
-            print(f"      Path: {base_path}")
+            print(f"\n  {Fore.RED}[!] Project '{project_name}' already exists in the stackforge workspace.")
+            print(f"      Path: {base_path}{Style.RESET_ALL}")
             print("      Choose a different project name or delete the existing one.\n")
             continue
 
@@ -66,10 +67,10 @@ def main():
         scaffold_folders(base_path, project_name)
 
         print(f"""
-  ✔ Project '{project_name}' created successfully!
-  ✔ Location: {base_path}
+  {Fore.GREEN}✔ Project '{project_name}' created successfully!
+  ✔ Location: {base_path}{Style.RESET_ALL}
 
-  Next steps:
+  {Fore.CYAN}Next steps:{Style.RESET_ALL}
     1. Open the project in Visual Studio or VS Code
     2. Run: docker-compose up --build
     3. Visit: http://localhost:5000/swagger

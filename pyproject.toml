@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "stackforge-cli"
-version = "0.1.0"
+version = "0.1.1"
 description = "A CLI scaffolder for .NET Clean Architecture projects"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -15,6 +15,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Environment :: Console",
+]
+dependencies = [
+    "colorama>=0.4.6",
 ]
 
 [project.scripts]
