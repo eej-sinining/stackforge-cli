@@ -1,4 +1,5 @@
 from pathlib import Path
+from stackforge import ui
 
 
 def generate_env(base: Path, project: str):
@@ -18,7 +19,7 @@ JWT_EXPIRY_MINUTES=60
 
     file_path = base / ".env"
     file_path.write_text(content)
-    print("  [+] .env")
+    ui.file_created(".env")
 
 
 def generate_appsettings(base: Path, project: str):
@@ -46,7 +47,7 @@ def generate_appsettings(base: Path, project: str):
 
     file_path = base / "API" / "appsettings.json"
     file_path.write_text(content)
-    print("  [+] API/appsettings.json")
+    ui.file_created("API/appsettings.json")
 
 
 def generate_appsettings_development(base: Path, project: str):
@@ -73,4 +74,4 @@ def generate_appsettings_development(base: Path, project: str):
 
     file_path = base / "API" / "appsettings.Development.json"
     file_path.write_text(content)
-    print("  [+] API/appsettings.Development.json")
+    ui.file_created("API/appsettings.Development.json")

@@ -1,4 +1,5 @@
 from pathlib import Path
+from stackforge import ui
 
 
 def generate_configure_services(layer: str, base: Path, project: str):
@@ -67,7 +68,7 @@ namespace {project}.Persistence
 
     file_path = base / layer / "ConfigureServices.cs"
     file_path.write_text(templates[layer])
-    print(f"  [+] {layer}/ConfigureServices.cs")
+    ui.file_created(f"{layer}/ConfigureServices.cs")
 
 
 def generate_program_cs(base: Path, project: str):
@@ -191,4 +192,4 @@ app.Run();
 
     file_path = base / "API" / "Program.cs"
     file_path.write_text(content)
-    print("  [+] API/Program.cs")
+    ui.file_created("API/Program.cs")

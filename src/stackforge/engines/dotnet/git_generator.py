@@ -1,5 +1,6 @@
 import subprocess
 from pathlib import Path
+from stackforge import ui
 
 def generate_sln(base: Path, project: str):
     layers = ["API", "Application", "Domain", "Infrastructure", "Persistence"]
@@ -18,7 +19,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 
     file_path = base / f"{project}.sln"
     file_path.write_text(content)
-    print(f"  [+] {project}.sln")
+    ui.file_created(f"{project}.sln")
 
     
 def generate_gitignore(base: Path):
@@ -41,16 +42,55 @@ out/
 
     file_path = base / ".gitignore"
     file_path.write_text(content)
-    print("  [+] .gitignore")
+    ui.file_created(".gitignore")
+
+
+def generate_github_workflow(base: Path):
+    workflow_dir = base / ".github" / "workflows"
+    workflow_dir.mkdir(parents=True, exist_ok=True)
+
+    content = """name: Sync Environment Branches
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create staging branch if missing
+        run: |
+          if ! git ls-remote --exit-code origin refs/heads/staging; then
+            git push origin HEAD:refs/heads/staging
+          fi
+
+      - name: Create development branch if missing
+        run: |
+          if ! git ls-remote --exit-code origin refs/heads/development; then
+            git push origin HEAD:refs/heads/development
+          fi
+"""
+    file_path = workflow_dir / "sync-branches.yml"
+    file_path.write_text(content.lstrip())
+    ui.file_created(".github/workflows/sync-branches.yml")
 
 
 def git_init(base: Path, project: str):
     try:
-        subprocess.run(["git", "init"], cwd=base, check=True, capture_output=True)
-        print("  [+] git init")
+        subprocess.run(["git", "init", "-b", "main"], cwd=base, check=True, capture_output=True)
+        ui.file_created("git init (main)")
 
         subprocess.run(["git", "add", "."], cwd=base, check=True, capture_output=True)
-        print("  [+] git add .")
+        ui.file_created("git add .")
 
         subprocess.run(
             ["git", "commit", "-m", f"initial: scaffold {project} with stackforge"],
@@ -58,10 +98,14 @@ def git_init(base: Path, project: str):
             check=True,
             capture_output=True
         )
-        print("  [+] initial commit")
+        ui.file_created("initial commit")
+
+        subprocess.run(["git", "branch", "staging"], cwd=base, check=True, capture_output=True)
+        subprocess.run(["git", "branch", "development"], cwd=base, check=True, capture_output=True)
+        ui.file_created("branches: main, staging, development")
 
     except subprocess.CalledProcessError as e:
-        print(f"  [!] Git error: {e}")
+        ui.error(f"Git error: {e}")
     except FileNotFoundError:
-        print("  [!] Git not found. Make sure Git is installed and in your PATH.")
+        ui.error("Git not found. Make sure Git is installed and in your PATH.")
 

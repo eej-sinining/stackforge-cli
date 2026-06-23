@@ -1,0 +1,34 @@
+---
+description: Project-specific rules auto-generated from codebase scan
+alwaysApply: true
+---
+
+# Project: StackForge
+
+## Stack
+Python 3.10+ CLI (`stackforge-cli` on PyPI, `stackforge` command), setuptools, colorama. Scaffolds .NET 10 Clean Architecture (CQRS) projects.
+
+## Architecture
+Single CLI entry (`stackforge.scaffold:main`) delegating to engine modules under `src/stackforge/engines/dotnet/`. Each generator owns one artifact type (csproj, docker, git, API, layers, config).
+
+## Naming & Conventions
+- Python: snake_case modules/functions, PascalCase for .NET project names
+- Generated .NET: PascalCase layers (API, Application, Domain, Infrastructure, Persistence)
+- Scaffold output path: `~/stackforge/{ProjectName}`
+
+## Key Constraints
+- Only .NET Clean Architecture is implemented; other frameworks are placeholders
+- Git default branch must be `main` (not `master`)
+- Environment branches: `staging`, `development`
+
+## Folder Structure
+```
+src/stackforge/
+  scaffold.py          # CLI entry
+  engines/dotnet/      # .NET scaffolder + generators
+```
+
+## What NOT to Do
+- Do not use `master` as the default branch name
+- Do not add framework scaffolds without implementing the full generator set
+- Match existing generator pattern: one file per concern, called from `scaffolder.py`

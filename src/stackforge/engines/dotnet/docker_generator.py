@@ -1,4 +1,5 @@
 from pathlib import Path
+from stackforge import ui
 
 
 def generate_dockerfile(base: Path):
@@ -14,7 +15,7 @@ ENTRYPOINT ["dotnet", "out/API.dll"]
 
     file_path = base / "Dockerfile"
     file_path.write_text(content)
-    print("  [+] Dockerfile")
+    ui.file_created("Dockerfile")
 
 
 def generate_docker_compose(base: Path, project: str):
@@ -60,4 +61,4 @@ volumes:
 
     file_path = base / "docker-compose.yml"
     file_path.write_text(content)
-    print("  [+] docker-compose.yml")
+    ui.file_created("docker-compose.yml")

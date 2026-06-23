@@ -1,4 +1,5 @@
 from pathlib import Path
+from stackforge import ui
 
 
 def generate_api_structure(base: Path, project: str):
@@ -28,7 +29,7 @@ def generate_api_structure(base: Path, project: str):
     _generate_login_dto(base, project)
     _generate_account_controller(base, project)
 
-    print("  [+] API/ structure and files")
+    ui.file_created("API/ structure and files")
 
 
 def _generate_base_controller(base: Path, project: str):

@@ -1,4 +1,5 @@
 from pathlib import Path
+from stackforge import ui
 
 
 def generate_application_layer(base: Path, project: str):
@@ -27,7 +28,7 @@ def generate_application_layer(base: Path, project: str):
     _gen_paged_response(base, project)
     _gen_iso_datetime(base, project)
 
-    print("  [+] Application/ structure and files")
+    ui.file_created("Application/ structure and files")
 
 
 def generate_domain_layer(base: Path, project: str):
@@ -47,7 +48,7 @@ def generate_domain_layer(base: Path, project: str):
     _gen_user_role(base, project)
     _gen_global_usings(base, project)
 
-    print("  [+] Domain/ structure and files")
+    ui.file_created("Domain/ structure and files")
 
 
 def generate_infrastructure_layer(base: Path, project: str):
@@ -60,7 +61,7 @@ def generate_infrastructure_layer(base: Path, project: str):
     for folder in folders:
         (base / folder).mkdir(parents=True, exist_ok=True)
 
-    print("  [+] Infrastructure/ structure and files")
+    ui.file_created("Infrastructure/ structure and files")
 
 
 def generate_persistence_layer(base: Path, project: str):
@@ -78,7 +79,7 @@ def generate_persistence_layer(base: Path, project: str):
     _gen_user_seeder(base, project)
     _gen_user_role_configuration(base, project)
 
-    print("  [+] Persistence/ structure and files")
+    ui.file_created("Persistence/ structure and files")
 
 
 # ── Application files ──────────────────────────────────────────────────────────

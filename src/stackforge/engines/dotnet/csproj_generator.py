@@ -1,4 +1,5 @@
 from pathlib import Path
+from stackforge import ui
 
 
 LAYER_CONFIGS = {
@@ -79,4 +80,4 @@ def generate_csproj(layer: str, base: Path):
 
     csproj_path = base / layer / f"{layer}.csproj"
     csproj_path.write_text(content.strip())
-    print(f"  [+] {layer}/{layer}.csproj")
+    ui.file_created(f"{layer}/{layer}.csproj")
