@@ -35,7 +35,7 @@ def scaffold_folders(base: Path, project: str):
         generate_csproj(layer, base)
 
     ui.section("Generating service registrations")
-    for layer in ["Application", "Infrastructure", "Persistence"]:
+    for layer in ["Application", "Infrastructure", "Persistence", "API"]:
         generate_configure_services(layer, base, project)
 
     ui.section("Generating Program.cs")

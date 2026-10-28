@@ -268,6 +268,7 @@ namespace {project}.API.Controllers.Main
             _jwtService = jwtService;
         }}
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {{
