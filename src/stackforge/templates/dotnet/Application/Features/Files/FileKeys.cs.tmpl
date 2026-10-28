@@ -1,0 +1,25 @@
+namespace __PROJECT__.Application.Features.Files
+{
+    /// <summary>
+    /// Builds storage keys server-side so clients never choose the key (no path traversal or overwrites),
+    /// and scopes every key to its owner so one user cannot reach another user's files.
+    /// </summary>
+    public static class FileKeys
+    {
+        private const int MaxExtensionLength = 10;
+
+        public static string ForOwner(Guid ownerId) => $"users/{ownerId:N}/";
+
+        public static string Create(Guid ownerId, string fileName)
+        {
+            var extension = Path.GetExtension(fileName).ToLowerInvariant();
+            if (extension.Length > MaxExtensionLength || !extension.Skip(1).All(char.IsAsciiLetterOrDigit))
+                extension = string.Empty;
+
+            return $"{ForOwner(ownerId)}{Guid.NewGuid():N}{extension}";
+        }
+
+        public static bool IsOwnedBy(string key, Guid ownerId) =>
+            key.StartsWith(ForOwner(ownerId), StringComparison.Ordinal) && !key.Contains("..");
+    }
+}

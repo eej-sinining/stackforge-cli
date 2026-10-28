@@ -8,11 +8,11 @@ ENGINE = "dotnet"
 CONFIGURE_SERVICES_LAYERS = {"Application", "Infrastructure", "Persistence", "API"}
 
 
-def generate_configure_services(layer: str, base: Path, project: str):
+def generate_configure_services(layer: str, base: Path, project: str, features: frozenset[str] = frozenset()):
     if layer not in CONFIGURE_SERVICES_LAYERS:
         return
 
-    render_file(ENGINE, base, f"{layer}/ConfigureServices.cs", project)
+    render_file(ENGINE, base, f"{layer}/ConfigureServices.cs", project, features)
     ui.file_created(f"{layer}/ConfigureServices.cs")
 
 

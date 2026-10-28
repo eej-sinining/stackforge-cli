@@ -10,6 +10,6 @@ def generate_dockerfile(base: Path, project: str = ""):
     ui.file_created("Dockerfile")
 
 
-def generate_docker_compose(base: Path, project: str):
-    render_file(ENGINE, base, "docker-compose.yml", project)
+def generate_docker_compose(base: Path, project: str, features: frozenset[str] = frozenset()):
+    render_file(ENGINE, base, "docker-compose.yml", project, features)
     ui.file_created("docker-compose.yml")

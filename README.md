@@ -14,7 +14,11 @@ pip install stackforge-cli
 stackforge
 ```
 
-Then follow the prompts to scaffold a new project.
+Then follow the prompts to scaffold a new project:
+
+1. Pick a framework (`dotnet`) or `exit`. There is no default; you must type a choice.
+2. For .NET, answer whether you want the **S3-ready template** (`y`/`n`).
+3. Enter the project name.
 
 ## Version and updates
 
@@ -42,6 +46,18 @@ When you run `stackforge`, it checks PyPI for a newer version and prints an upgr
 - Role and user seeders (SuperAdmin out of the box)
 - Git initialization on `main` with `staging` and `development` branches
 - GitHub Actions workflow to create `staging` and `development` on first push to `main`
+- Optional (S3-ready template): AWS S3 file storage, see below
+
+## S3-ready template
+
+Answering `y` to the S3 question adds:
+
+- `Application/Interfaces/IFileStorageService.cs`: the storage abstraction Application code depends on
+- `Application/Features/Files/...`: `UploadFileCommand` (with validator) and `GetFileUrlQuery` (pre-signed download URL) MediatR handlers; keys are generated server-side under `users/<ownerId>/`, and a query for another owner's key returns not found
+- `Infrastructure/Services/S3StorageService.cs` and `Infrastructure/Options/S3Options.cs`, registered in `AddInfrastructureServices()` with `AWSSDK.S3`
+- An `S3` section in `appsettings.json` / `appsettings.Development.json` (bucket, region, optional `ServiceUrl` for MinIO/LocalStack, URL expiry)
+
+AWS credentials are never written to `appsettings`. The AWS SDK reads them from its default chain: `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` (left empty in `.env` and passed through by `docker-compose.yml`), a shared AWS profile, or an IAM role.
 
 ## Quickstart after scaffolding
 

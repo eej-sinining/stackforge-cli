@@ -11,6 +11,11 @@ services:
       - Jwt__Audience=http://localhost:5000
       - Jwt__SecretKey=your-super-secret-key-change-this-in-production
       - Jwt__ExpiryMinutes=60
+{% if s3 %}
+      # AWS credentials come from .env; never hardcode them here.
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-}
+{% endif %}
     depends_on:
       db:
         condition: service_healthy

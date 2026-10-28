@@ -1,5 +1,6 @@
 from pathlib import Path
 from stackforge import ui
+from . import features as feature_flags
 
 
 LAYER_CONFIGS = {
@@ -25,6 +26,12 @@ LAYER_CONFIGS = {
         "sdk": "Microsoft.NET.Sdk",
         "references": ["Application"],
         "packages": [],
+        "feature_packages": {
+            feature_flags.S3: [
+                ("AWSSDK.S3", "4.0.104.7"),
+                ("Microsoft.Extensions.Options.ConfigurationExtensions", "10.0.4"),
+            ],
+        },
     },
     "Persistence": {
         "sdk": "Microsoft.NET.Sdk",
@@ -46,16 +53,19 @@ LAYER_CONFIGS = {
 }
 
 
-def generate_csproj(layer: str, base: Path):
+def generate_csproj(layer: str, base: Path, features: frozenset[str] = frozenset()):
     config = LAYER_CONFIGS[layer]
     sdk = config["sdk"]
+    packages = list(config["packages"])
+    for feature in sorted(features):
+        packages += config.get("feature_packages", {}).get(feature, [])
 
     project_refs = ""
     for ref in config["references"]:
         project_refs += f'\n        <ProjectReference Include="..\\{ref}\\{ref}.csproj" />'
 
     package_refs = ""
-    for name, version in config["packages"]:
+    for name, version in packages:
         package_refs += f'\n        <PackageReference Include="{name}" Version="{version}" />'
 
     item_group = ""

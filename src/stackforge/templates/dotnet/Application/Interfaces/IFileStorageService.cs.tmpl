@@ -1,0 +1,16 @@
+namespace __PROJECT__.Application.Interfaces
+{
+    /// <summary>
+    /// Object storage abstraction. Implemented in Infrastructure (S3StorageService), so Application
+    /// never depends on the AWS SDK.
+    /// </summary>
+    public interface IFileStorageService
+    {
+        Task UploadAsync(string key, Stream content, string contentType, CancellationToken cancellationToken = default);
+
+        /// <summary>Returns a short-lived, pre-signed URL to download the object.</summary>
+        Task<string> GetDownloadUrlAsync(string key, CancellationToken cancellationToken = default);
+
+        Task DeleteAsync(string key, CancellationToken cancellationToken = default);
+    }
+}
