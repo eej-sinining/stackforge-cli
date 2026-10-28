@@ -1,0 +1,8 @@
+using __PROJECT__.Application.Common.Models;
+using MediatR;
+
+namespace __PROJECT__.Application.Features.Files.Queries.GetFileUrl
+{
+    /// <summary>Returns a pre-signed download URL for a file owned by <see cref="OwnerId"/>.</summary>
+    public record GetFileUrlQuery(Guid OwnerId, string Key) : IRequest<Result<string>>;
+}

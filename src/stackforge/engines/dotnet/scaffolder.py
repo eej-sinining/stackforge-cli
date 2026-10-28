@@ -1,5 +1,6 @@
 from pathlib import Path
 from stackforge import ui
+from . import features as feature_flags
 from .csproj_generator import generate_csproj
 from .program_generator import generate_configure_services, generate_program_cs
 from .docker_generator import generate_dockerfile, generate_docker_compose
@@ -13,7 +14,12 @@ from .layers_generator import (
     generate_persistence_layer,
 )
 
-def scaffold_folders(base: Path, project: str):
+def scaffold_folders(base: Path, project: str, features: frozenset[str] = frozenset()):
+    """Generates the .NET solution into ``base``; ``features`` holds optional extras from ``features.ALL``."""
+    unknown = features - feature_flags.ALL
+    if unknown:
+        raise ValueError(f"Unknown .NET template features: {sorted(unknown)}")
+
     layers = [
         "API",
         "Application",
@@ -32,31 +38,31 @@ def scaffold_folders(base: Path, project: str):
 
     ui.section("Generating .csproj files")
     for layer in layers:
-        generate_csproj(layer, base)
+        generate_csproj(layer, base, features)
 
     ui.section("Generating service registrations")
     for layer in ["Application", "Infrastructure", "Persistence", "API"]:
-        generate_configure_services(layer, base, project)
+        generate_configure_services(layer, base, project, features)
 
     ui.section("Generating Program.cs")
     generate_program_cs(base, project)
 
     ui.section("Generating Docker files")
     generate_dockerfile(base)
-    generate_docker_compose(base, project)
+    generate_docker_compose(base, project, features)
 
     ui.section("Generating config files")
-    generate_env(base, project)
-    generate_appsettings(base, project)
-    generate_appsettings_development(base, project)
+    generate_env(base, project, features)
+    generate_appsettings(base, project, features)
+    generate_appsettings_development(base, project, features)
 
     ui.section("Generating API layer")
     generate_api_structure(base, project)
 
     ui.section("Generating layer files")
-    generate_application_layer(base, project)
+    generate_application_layer(base, project, features)
     generate_domain_layer(base, project)
-    generate_infrastructure_layer(base, project)
+    generate_infrastructure_layer(base, project, features)
     generate_persistence_layer(base, project)
 
     ui.section("Generating solution file")

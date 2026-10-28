@@ -1,4 +1,14 @@
+{% if s3 %}
+using Amazon;
+using Amazon.S3;
+using __PROJECT__.Application.Interfaces;
+using __PROJECT__.Infrastructure.Options;
+using __PROJECT__.Infrastructure.Services;
+{% endif %}
 using Microsoft.Extensions.DependencyInjection;
+{% if s3 %}
+using Microsoft.Extensions.Options;
+{% endif %}
 
 namespace __PROJECT__.Infrastructure
 {
@@ -7,6 +17,38 @@ namespace __PROJECT__.Infrastructure
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
         {
             // Register infrastructure services here
+{% if s3 %}
+
+            services.AddOptions<S3Options>()
+                .BindConfiguration(S3Options.SectionName)
+                .Validate(o => !string.IsNullOrWhiteSpace(o.BucketName), "S3:BucketName is required.")
+                .Validate(o => !string.IsNullOrWhiteSpace(o.Region), "S3:Region is required.")
+                .Validate(o => o.PresignedUrlExpiryMinutes is > 0 and <= 10080, "S3:PresignedUrlExpiryMinutes must be between 1 and 10080.")
+                .ValidateOnStart();
+
+            // Credentials are resolved by the AWS SDK default chain (environment variables, shared profile,
+            // or an IAM role) and are never read from appsettings.
+            services.AddSingleton<IAmazonS3>(sp =>
+            {
+                var options = sp.GetRequiredService<IOptions<S3Options>>().Value;
+                var config = new AmazonS3Config { ForcePathStyle = options.ForcePathStyle };
+
+                // ServiceUrl targets S3-compatible storage (MinIO, LocalStack); otherwise AWS S3 in Region.
+                if (string.IsNullOrWhiteSpace(options.ServiceUrl))
+                {
+                    config.RegionEndpoint = RegionEndpoint.GetBySystemName(options.Region);
+                }
+                else
+                {
+                    config.ServiceURL = options.ServiceUrl;
+                    config.AuthenticationRegion = options.Region;
+                }
+
+                return new AmazonS3Client(config);
+            });
+
+            services.AddScoped<IFileStorageService, S3StorageService>();
+{% endif %}
 
             return services;
         }

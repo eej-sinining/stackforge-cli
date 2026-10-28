@@ -1,0 +1,28 @@
+using __PROJECT__.Application.Common.Constants;
+using __PROJECT__.Application.Common.Models;
+using __PROJECT__.Application.Interfaces;
+using MediatR;
+
+namespace __PROJECT__.Application.Features.Files.Queries.GetFileUrl
+{
+    public class GetFileUrlQueryHandler : IRequestHandler<GetFileUrlQuery, Result<string>>
+    {
+        private readonly IFileStorageService _fileStorage;
+
+        public GetFileUrlQueryHandler(IFileStorageService fileStorage)
+        {
+            _fileStorage = fileStorage;
+        }
+
+        public async Task<Result<string>> Handle(GetFileUrlQuery request, CancellationToken cancellationToken)
+        {
+            // Same response for "not yours" and "does not exist", so keys cannot be probed.
+            if (string.IsNullOrWhiteSpace(request.Key) || !FileKeys.IsOwnedBy(request.Key, request.OwnerId))
+                return Result<string>.Failure(ErrorMessages.NotFound);
+
+            var url = await _fileStorage.GetDownloadUrlAsync(request.Key, cancellationToken);
+
+            return Result<string>.Success(url);
+        }
+    }
+}

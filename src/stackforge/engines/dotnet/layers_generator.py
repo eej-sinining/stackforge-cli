@@ -1,21 +1,33 @@
 from pathlib import Path
 from stackforge import ui
 from stackforge.templating import render_file
+from . import features as feature_flags
 
 ENGINE = "dotnet"
 
 
-def _generate_layer(base: Path, project: str, layer: str, folders: list[str], templates: list[str]):
+def _generate_layer(
+    base: Path,
+    project: str,
+    layer: str,
+    folders: list[str],
+    templates: list[str],
+    features: frozenset[str] = frozenset(),
+    feature_templates: dict[str, list[str]] | None = None,
+):
     for folder in folders:
         (base / folder).mkdir(parents=True, exist_ok=True)
 
+    for feature in sorted(features):
+        templates = templates + (feature_templates or {}).get(feature, [])
+
     for template in templates:
-        render_file(ENGINE, base, template, project)
+        render_file(ENGINE, base, template, project, features)
 
     ui.file_created(f"{layer}/ structure and files")
 
 
-def generate_application_layer(base: Path, project: str):
+def generate_application_layer(base: Path, project: str, features: frozenset[str] = frozenset()):
     _generate_layer(
         base,
         project,
@@ -43,6 +55,18 @@ def generate_application_layer(base: Path, project: str):
             "Application/Common/Models/PagedResponse.cs",
             "Application/Common/Models/Serialization/IsoDateTime.cs",
         ],
+        features=features,
+        feature_templates={
+            feature_flags.S3: [
+                "Application/Interfaces/IFileStorageService.cs",
+                "Application/Features/Files/Commands/UploadFile/UploadFileCommand.cs",
+                "Application/Features/Files/Commands/UploadFile/UploadFileCommandHandler.cs",
+                "Application/Features/Files/Commands/UploadFile/UploadFileCommandValidator.cs",
+                "Application/Features/Files/Queries/GetFileUrl/GetFileUrlQuery.cs",
+                "Application/Features/Files/Queries/GetFileUrl/GetFileUrlQueryHandler.cs",
+                "Application/Features/Files/FileKeys.cs",
+            ],
+        },
     )
 
 
@@ -68,7 +92,7 @@ def generate_domain_layer(base: Path, project: str):
     )
 
 
-def generate_infrastructure_layer(base: Path, project: str):
+def generate_infrastructure_layer(base: Path, project: str, features: frozenset[str] = frozenset()):
     _generate_layer(
         base,
         project,
@@ -80,6 +104,13 @@ def generate_infrastructure_layer(base: Path, project: str):
             "Infrastructure/Services",
         ],
         templates=[],
+        features=features,
+        feature_templates={
+            feature_flags.S3: [
+                "Infrastructure/Options/S3Options.cs",
+                "Infrastructure/Services/S3StorageService.cs",
+            ],
+        },
     )
 
 

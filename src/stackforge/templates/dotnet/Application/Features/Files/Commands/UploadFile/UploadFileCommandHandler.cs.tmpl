@@ -1,0 +1,25 @@
+using __PROJECT__.Application.Common.Models;
+using __PROJECT__.Application.Interfaces;
+using MediatR;
+
+namespace __PROJECT__.Application.Features.Files.Commands.UploadFile
+{
+    public class UploadFileCommandHandler : IRequestHandler<UploadFileCommand, Result<string>>
+    {
+        private readonly IFileStorageService _fileStorage;
+
+        public UploadFileCommandHandler(IFileStorageService fileStorage)
+        {
+            _fileStorage = fileStorage;
+        }
+
+        public async Task<Result<string>> Handle(UploadFileCommand request, CancellationToken cancellationToken)
+        {
+            var key = FileKeys.Create(request.OwnerId, request.FileName);
+
+            await _fileStorage.UploadAsync(key, request.Content, request.ContentType, cancellationToken);
+
+            return Result<string>.Success(key);
+        }
+    }
+}

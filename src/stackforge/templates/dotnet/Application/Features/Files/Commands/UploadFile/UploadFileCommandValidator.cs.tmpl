@@ -1,0 +1,28 @@
+using FluentValidation;
+
+namespace __PROJECT__.Application.Features.Files.Commands.UploadFile
+{
+    public class UploadFileCommandValidator : AbstractValidator<UploadFileCommand>
+    {
+        public const long MaxFileSizeBytes = 10 * 1024 * 1024;
+
+        // Adjust to the file types your application accepts.
+        public static readonly string[] AllowedContentTypes =
+        {
+            "image/jpeg",
+            "image/png",
+            "application/pdf",
+        };
+
+        public UploadFileCommandValidator()
+        {
+            RuleFor(x => x.OwnerId).NotEmpty();
+            RuleFor(x => x.FileName).NotEmpty().MaximumLength(255);
+            RuleFor(x => x.Content).NotNull();
+            RuleFor(x => x.Size).GreaterThan(0).LessThanOrEqualTo(MaxFileSizeBytes);
+            RuleFor(x => x.ContentType)
+                .Must(type => AllowedContentTypes.Contains(type))
+                .WithMessage("File type is not allowed.");
+        }
+    }
+}

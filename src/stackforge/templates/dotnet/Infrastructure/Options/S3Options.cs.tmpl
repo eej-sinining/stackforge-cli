@@ -1,0 +1,20 @@
+namespace __PROJECT__.Infrastructure.Options
+{
+    /// <summary>
+    /// Bound from the "S3" configuration section. Holds no credentials: the AWS SDK resolves them from
+    /// environment variables, a shared profile, or an IAM role.
+    /// </summary>
+    public class S3Options
+    {
+        public const string SectionName = "S3";
+
+        public string BucketName { get; set; } = string.Empty;
+        public string Region { get; set; } = string.Empty;
+
+        /// <summary>Optional endpoint for S3-compatible storage (MinIO, LocalStack). Empty for AWS S3.</summary>
+        public string? ServiceUrl { get; set; }
+
+        public bool ForcePathStyle { get; set; }
+        public int PresignedUrlExpiryMinutes { get; set; } = 15;
+    }
+}

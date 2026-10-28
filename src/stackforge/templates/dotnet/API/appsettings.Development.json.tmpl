@@ -8,6 +8,15 @@
     "SecretKey": "your-super-secret-key-change-this-in-production",
     "ExpiryMinutes": 60
   },
+{% if s3 %}
+  "S3": {
+    "BucketName": "__project__-files",
+    "Region": "us-east-1",
+    "ServiceUrl": "",
+    "ForcePathStyle": false,
+    "PresignedUrlExpiryMinutes": 15
+  },
+{% endif %}
   "Logging": {
     "LogLevel": {
       "Default": "Information",
