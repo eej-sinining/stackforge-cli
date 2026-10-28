@@ -1,0 +1,36 @@
+using __PROJECT__.Domain.Entities.Identity;
+using Humanizer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using System.Reflection;
+
+namespace __PROJECT__.Persistence
+{
+    public class DataContext : IdentityDbContext<
+        User,
+        Role,
+        Guid,
+        IdentityUserClaim<Guid>,
+        UserRole,
+        IdentityUserLogin<Guid>,
+        IdentityRoleClaim<Guid>,
+        IdentityUserToken<Guid>>
+    {
+        public DataContext(DbContextOptions<DataContext> options) : base(options)
+        {
+        }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+            foreach (var entityType in builder.Model.GetEntityTypes())
+            {
+                var table = entityType.GetTableName();
+                if (table!.StartsWith("AspNet"))
+                    entityType.SetTableName(table.Substring(6).Underscore());
+            }
+        }
+    }
+}

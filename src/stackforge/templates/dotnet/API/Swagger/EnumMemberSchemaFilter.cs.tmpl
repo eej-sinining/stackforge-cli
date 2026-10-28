@@ -1,0 +1,25 @@
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Runtime.Serialization;
+
+namespace __PROJECT__.API.Swagger
+{
+    public class EnumMemberSchemaFilter : ISchemaFilter
+    {
+        public void Apply(OpenApiSchema schema, SchemaFilterContext context)
+        {
+            if (!context.Type.IsEnum) return;
+
+            schema.Enum.Clear();
+            foreach (var member in Enum.GetNames(context.Type))
+            {
+                var field = context.Type.GetField(member);
+                var attr = field?.GetCustomAttributes(typeof(EnumMemberAttribute), false)
+                                 .OfType<EnumMemberAttribute>()
+                                 .FirstOrDefault();
+                schema.Enum.Add(new OpenApiString(attr?.Value ?? member));
+            }
+        }
+    }
+}

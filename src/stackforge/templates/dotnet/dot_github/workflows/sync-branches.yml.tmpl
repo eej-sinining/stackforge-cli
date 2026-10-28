@@ -1,0 +1,29 @@
+name: Sync Environment Branches
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync-branches:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create staging branch if missing
+        run: |
+          if ! git ls-remote --exit-code origin refs/heads/staging; then
+            git push origin HEAD:refs/heads/staging
+          fi
+
+      - name: Create development branch if missing
+        run: |
+          if ! git ls-remote --exit-code origin refs/heads/development; then
+            git push origin HEAD:refs/heads/development
+          fi

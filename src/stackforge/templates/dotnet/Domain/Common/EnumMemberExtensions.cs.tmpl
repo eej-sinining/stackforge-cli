@@ -1,0 +1,16 @@
+using System.Runtime.Serialization;
+using System.Reflection;
+
+namespace __PROJECT__.Domain.Common
+{
+    public static class EnumMemberExtensions
+    {
+        public static string ToEnumMemberValue<T>(this T value) where T : Enum
+        {
+            return typeof(T)
+                .GetField(value.ToString())
+                ?.GetCustomAttribute<EnumMemberAttribute>()
+                ?.Value ?? value.ToString();
+        }
+    }
+}

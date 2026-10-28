@@ -1,0 +1,13 @@
+using Microsoft.AspNetCore.Identity;
+
+namespace __PROJECT__.Domain.Entities.Identity
+{
+    public class User : IdentityUser<Guid>
+    {
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    }
+}

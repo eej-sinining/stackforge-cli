@@ -1,0 +1,18 @@
+using __PROJECT__.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace __PROJECT__.Persistence
+{
+    public static class ConfigureServices
+    {
+        public static IServiceCollection AddPersistenceServices(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddDbContext<DataContext>(options =>
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
+            return services;
+        }
+    }
+}

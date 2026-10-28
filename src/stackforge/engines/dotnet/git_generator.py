@@ -2,6 +2,9 @@ import uuid
 import subprocess
 from pathlib import Path
 from stackforge import ui
+from stackforge.templating import render_file
+
+ENGINE = "dotnet"
 
 def generate_sln(base: Path, project: str):
     layers = ["API", "Application", "Domain", "Infrastructure", "Persistence"]
@@ -37,65 +40,13 @@ EndGlobal
     ui.file_created(f"{project}.sln")
 
     
-def generate_gitignore(base: Path):
-    content = """# Build results
-bin/
-obj/
-out/
-
-# Environment
-.env
-
-# VS / Rider
-.vs/
-.idea/
-*.user
-
-# Logs
-*.log
-"""
-
-    file_path = base / ".gitignore"
-    file_path.write_text(content)
+def generate_gitignore(base: Path, project: str = ""):
+    render_file(ENGINE, base, ".gitignore", project)
     ui.file_created(".gitignore")
 
 
-def generate_github_workflow(base: Path):
-    workflow_dir = base / ".github" / "workflows"
-    workflow_dir.mkdir(parents=True, exist_ok=True)
-
-    content = """name: Sync Environment Branches
-
-on:
-  push:
-    branches:
-      - main
-
-permissions:
-  contents: write
-
-jobs:
-  sync-branches:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Create staging branch if missing
-        run: |
-          if ! git ls-remote --exit-code origin refs/heads/staging; then
-            git push origin HEAD:refs/heads/staging
-          fi
-
-      - name: Create development branch if missing
-        run: |
-          if ! git ls-remote --exit-code origin refs/heads/development; then
-            git push origin HEAD:refs/heads/development
-          fi
-"""
-    file_path = workflow_dir / "sync-branches.yml"
-    file_path.write_text(content.lstrip())
+def generate_github_workflow(base: Path, project: str = ""):
+    render_file(ENGINE, base, ".github/workflows/sync-branches.yml", project)
     ui.file_created(".github/workflows/sync-branches.yml")
 
 

@@ -1,0 +1,36 @@
+services:
+  api:
+    build: .
+    container_name: __project___api
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=__project___db;Username=postgres;Password=postgres
+      - Jwt__Issuer=http://localhost:5000
+      - Jwt__Audience=http://localhost:5000
+      - Jwt__SecretKey=your-super-secret-key-change-this-in-production
+      - Jwt__ExpiryMinutes=60
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:latest
+    container_name: __project___db
+    environment:
+      POSTGRES_DB: __project___db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - __project___pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  __project___pgdata:

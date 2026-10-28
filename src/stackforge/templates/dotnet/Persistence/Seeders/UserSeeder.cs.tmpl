@@ -1,0 +1,28 @@
+using __PROJECT__.Domain.Entities.Identity;
+using Microsoft.AspNetCore.Identity;
+
+namespace __PROJECT__.Persistence.Seeders
+{
+    public static class UserSeeder
+    {
+        public static async Task SeedAsync(UserManager<User> userManager)
+        {
+            var superAdmin = await userManager.FindByEmailAsync("super_admin@__project__.com");
+
+            if (superAdmin == null)
+            {
+                var user = new User
+                {
+                    UserName = "super_admin@__project__.com",
+                    Email = "super_admin@__project__.com",
+                    FirstName = "Super",
+                    LastName = "Admin",
+                    EmailConfirmed = true,
+                };
+
+                await userManager.CreateAsync(user, "Pa$$w0rd");
+                await userManager.AddToRoleAsync(user, "SuperAdmin");
+            }
+        }
+    }
+}
