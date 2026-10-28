@@ -41,8 +41,13 @@ jobs:
             echo "${NAME} ${VERSION} is new; publishing."
           fi
 
-  build:
+  tests:
     needs: check-version
+    if: needs.check-version.outputs.publish == 'true'
+    uses: ./.github/workflows/tests.yml
+
+  build:
+    needs: [check-version, tests]
     if: needs.check-version.outputs.publish == 'true'
     runs-on: ubuntu-latest
     steps:
