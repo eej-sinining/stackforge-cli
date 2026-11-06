@@ -1,5 +1,6 @@
 {% if s3 %}
 using Amazon;
+using Amazon.Runtime;
 using Amazon.S3;
 using __PROJECT__.Application.Interfaces;
 using __PROJECT__.Infrastructure.Options;
@@ -24,10 +25,13 @@ namespace __PROJECT__.Infrastructure
                 .Validate(o => !string.IsNullOrWhiteSpace(o.BucketName), "S3:BucketName is required.")
                 .Validate(o => !string.IsNullOrWhiteSpace(o.Region), "S3:Region is required.")
                 .Validate(o => o.PresignedUrlExpiryMinutes is > 0 and <= 10080, "S3:PresignedUrlExpiryMinutes must be between 1 and 10080.")
+                .Validate(
+                    o => string.IsNullOrWhiteSpace(o.AccessKeyId) == string.IsNullOrWhiteSpace(o.SecretAccessKey),
+                    "S3:AccessKeyId and S3:SecretAccessKey must be set together or both left empty.")
                 .ValidateOnStart();
 
-            // Credentials are resolved by the AWS SDK default chain (environment variables, shared profile,
-            // or an IAM role) and are never read from appsettings.
+            // Explicit S3:AccessKeyId / S3:SecretAccessKey win; when both are empty the AWS SDK default chain
+            // (environment variables, shared profile, or an IAM role) resolves credentials.
             services.AddSingleton<IAmazonS3>(sp =>
             {
                 var options = sp.GetRequiredService<IOptions<S3Options>>().Value;
@@ -44,7 +48,9 @@ namespace __PROJECT__.Infrastructure
                     config.AuthenticationRegion = options.Region;
                 }
 
-                return new AmazonS3Client(config);
+                return options.HasExplicitCredentials
+                    ? new AmazonS3Client(new BasicAWSCredentials(options.AccessKeyId, options.SecretAccessKey), config)
+                    : new AmazonS3Client(config);
             });
 
             services.AddScoped<IFileStorageService, S3StorageService>();

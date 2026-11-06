@@ -1,8 +1,10 @@
 namespace __PROJECT__.Infrastructure.Options
 {
     /// <summary>
-    /// Bound from the "S3" configuration section. Holds no credentials: the AWS SDK resolves them from
-    /// environment variables, a shared profile, or an IAM role.
+    /// Bound from the "S3" configuration section. AccessKeyId / SecretAccessKey are optional: leave both
+    /// empty to let the AWS SDK resolve credentials from environment variables, a shared profile, or an
+    /// IAM role. Never commit real keys to appsettings; supply them via user-secrets or environment
+    /// variables (S3__AccessKeyId, S3__SecretAccessKey).
     /// </summary>
     public class S3Options
     {
@@ -10,11 +12,16 @@ namespace __PROJECT__.Infrastructure.Options
 
         public string BucketName { get; set; } = string.Empty;
         public string Region { get; set; } = string.Empty;
+        public string AccessKeyId { get; set; } = string.Empty;
+        public string SecretAccessKey { get; set; } = string.Empty;
 
         /// <summary>Optional endpoint for S3-compatible storage (MinIO, LocalStack). Empty for AWS S3.</summary>
         public string? ServiceUrl { get; set; }
 
         public bool ForcePathStyle { get; set; }
         public int PresignedUrlExpiryMinutes { get; set; } = 15;
+
+        public bool HasExplicitCredentials =>
+            !string.IsNullOrWhiteSpace(AccessKeyId) && !string.IsNullOrWhiteSpace(SecretAccessKey);
     }
 }

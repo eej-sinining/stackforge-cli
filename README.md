@@ -55,9 +55,9 @@ Answering `y` to the S3 question adds:
 - `Application/Interfaces/IFileStorageService.cs`: the storage abstraction Application code depends on
 - `Application/Features/Files/...`: `UploadFileCommand` (with validator) and `GetFileUrlQuery` (pre-signed download URL) MediatR handlers; keys are generated server-side under `users/<ownerId>/`, and a query for another owner's key returns not found
 - `Infrastructure/Services/S3StorageService.cs` and `Infrastructure/Options/S3Options.cs`, registered in `AddInfrastructureServices()` with `AWSSDK.S3`
-- An `S3` section in `appsettings.json` / `appsettings.Development.json` (bucket, region, optional `ServiceUrl` for MinIO/LocalStack, URL expiry)
+- An `S3` section in `appsettings.json` / `appsettings.Development.json` with empty `BucketName`, `Region`, `AccessKeyId` and `SecretAccessKey`. `BucketName` and `Region` are required at startup.
 
-AWS credentials are never written to `appsettings`. The AWS SDK reads them from its default chain: `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` (left empty in `.env` and passed through by `docker-compose.yml`), a shared AWS profile, or an IAM role.
+`AccessKeyId` / `SecretAccessKey` must be set together or both left empty. When empty, the AWS SDK reads credentials from its default chain: `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` (left empty in `.env` and passed through by `docker-compose.yml`), a shared AWS profile, or an IAM role. Do not commit real keys to `appsettings`; use `dotnet user-secrets` or the `S3__AccessKeyId` / `S3__SecretAccessKey` environment variables. `ServiceUrl` (MinIO/LocalStack), `ForcePathStyle` and `PresignedUrlExpiryMinutes` (default 15) remain optional `S3` keys.
 
 ## Quickstart after scaffolding
 
