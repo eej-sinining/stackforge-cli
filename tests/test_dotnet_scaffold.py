@@ -80,15 +80,13 @@ def test_s3_template_generates_s3_components(scaffolded_s3):
 
 
 @pytest.mark.parametrize("settings", ["API/appsettings.json", "API/appsettings.Development.json"])
-def test_s3_settings_are_valid_json_without_credentials(scaffolded, scaffolded_s3, settings):
+def test_s3_settings_section_has_empty_placeholders(scaffolded, scaffolded_s3, settings):
     plain = json.loads((scaffolded / settings).read_text())
     s3 = json.loads((scaffolded_s3 / settings).read_text())
 
     assert "S3" not in plain
-    assert s3["S3"]["BucketName"] == f"{PROJECT.lower()}-files"
-    assert s3["S3"]["Region"]
-    serialized = json.dumps(s3["S3"]).lower()
-    assert "secret" not in serialized and "accesskey" not in serialized
+    # Exact shape, all values empty: no real credentials are ever written into committed settings.
+    assert s3["S3"] == {"BucketName": "", "Region": "", "AccessKeyId": "", "SecretAccessKey": ""}
 
 
 def test_s3_credentials_come_from_environment(scaffolded_s3):
